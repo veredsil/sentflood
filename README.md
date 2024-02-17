@@ -32,7 +32,6 @@ and finds the optimal NDWI index threshold using MCC on the training set. Result
     batch_visualize_ndwith_eval_withrgb() - visualizing random frames from the training set using the optimal threshold
                             blue - water, grey - dry, black - bad pixels
     
-
     The optimal threshold was found to be: 
 
 
@@ -44,8 +43,3 @@ The image bytes are be stored as a tf.train.BytesList feature, when the contents
 
 step3_tfrec.py: step3_tfrecoeds_for_dataset() - creates a tfrecoeds for train, valid, test, and bolivia splits
                 step3_tfrecoeds_visual() - visualize the records
-
-
-Please create a python script that reads the original files and creates a single tf.data.Example record for each input image.??
-Optional: Add a colab to visualize the contents of the TFRecord file
-
