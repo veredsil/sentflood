@@ -4,11 +4,6 @@
 3. Create venv: python -m venv venv
 4. pip install -r ./requirements.txt
 
-Execution:
-1. cd pyexample 
-2. python main.py
-
-
 Step 1 - Basic Statistics
 1. Number of images in each split and each region.
     step1_stats.py: step1_number_of_images()
