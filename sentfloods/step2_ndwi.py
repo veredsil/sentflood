@@ -1,9 +1,6 @@
-from PIL import Image
 import pandas as pd
 import rasterio
-from rasterio.plot import reshape_as_image
 import os
-from PIL import Image
 import rasterio
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,8 +12,12 @@ from sklearn.metrics import matthews_corrcoef
 output_path = 'output/'
 
 def load_s2filelist_df(splits):
-    # load S2 file list into pandas dataframe for desired splits
-    # input: splits (list)
+    """
+    load .tif files list into pandas dataframe for desired splits 
+    listed in the corresponding csv files in: dataset/flood_handlabeled/'
+    input: splits, e.g: ['train','test']
+    output: pandas dataframe with columns 'region','imageId','sampleType', 'split'
+    """
     data_root = 'dataset/flood_handlabeled/'
     df = []
     for split in splits:
@@ -30,9 +31,11 @@ def load_s2filelist_df(splits):
     return df
 
 def get_s2_hand(filename):
-    # loads S2 data files- 13 band tif and corresponding labeled mask
-    # input: file name 'REGION_IMGID_SPLIT.tif'
-    # output: data_s2 (512,512,13) , data_label(512, 512, 1) , np.array
+    """ 
+    loads S2 data files- 13 band tif and corresponding labeled mask
+    input: file name 'REGION_IMGID_SPLIT.tif'
+    output: data_s2 (512,512,13) , data_label(512, 512, 1) , np.array
+    """
     path_s2 = 'dataset/S2Hand/'
     path_label = "dataset/LabelHand/"
     fnamesplit = filename.split('_')
@@ -46,16 +49,21 @@ def get_s2_hand(filename):
 
     return data_s2, data_label
 
-
 def calc_ndwi(nir, green):
+    """ 
+        Calculate NDWI for Sentinel2 using band B03 for green, and band B08 for NIR 
+        input: nir/green np.array[512, 512]
+    """
     ndwi = np.where((nir + green) == 0, 0, (nir - green) / (green + nir))
     return ndwi
 
 def s2stack_to_rgb(img_tmp):
+    """ create rgb from Sentinel2 13 band array """
     img_rgb = np.dstack((img_tmp[:,:,3], img_tmp[:,:,2], img_tmp[:,:,1]))
     return img_rgb / 10000
 
 def calc_mndwi_from_df(df):
+    """ calculate ndwi from Sentinel2 13 band array for all files within df['LabelHand'] """
     ndwis = []
     mndwis = []
     labels = []
@@ -78,8 +86,10 @@ def calc_mndwi_from_df(df):
 
     return ndwis, labels, rgbs, mndwis
 
-
 def hist_ndwi_water_dry(ndwi_arr, label_arr):
+    """ 
+    Plot histograms of NDWI values for water and dry pixels, to explore possible thresholds for NDWI
+    """
     ndwi_filt = ndwi_arr.flatten()
     label_filt = label_arr.flatten()
     ndwi_filt = ndwi_filt[label_filt>-1]
@@ -96,21 +106,22 @@ def hist_ndwi_water_dry(ndwi_arr, label_arr):
     plt.xlabel('NDWI')
     plt.ylabel('Frequency')
     plt.legend()
-    plt.grid(True)
+    plt.grid()
     plt.tight_layout()
 
     return fig
 
 def optimal_ndwi_th_mcc(label_all, ndwi_all):
-
+    """
+    Find optimal NDWI threshold my maximazing MCC score on the training set
+    """
     ndwi_filt = ndwi_all.flatten()
     label_filt = label_all.flatten()
     ndwi_filt = ndwi_filt[label_filt>-1]
     label_filt = label_filt[label_filt>-1]
 
-    # Initialize an array to store MCC for each threshold
     mcc_scores = []
-    thresholds = np.linspace(-.3, .1, 15)
+    thresholds = np.linspace(-.3, .1, 15) # range was chosen according to the labeled distributions
 
     # Calculate MCC for each threshold
     for threshold in thresholds:
