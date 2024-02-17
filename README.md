@@ -1,6 +1,4 @@
-PyExample Program
 
-Installation:
 1. Retrieve the dataset: gsutil -m rsync -r gs://sen1floods11
 2. cd sentfloods
 3. Create venv: python -m venv venv
