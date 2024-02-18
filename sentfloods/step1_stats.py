@@ -11,26 +11,13 @@ import seaborn as sns
 
 output_path = 'output/'
 
-def get_s2_hand(filename):
-    # loads S2 data files- 13 band tif and corresponding labeled mask
-    # input: file name 'REGION_IMGID_SPLIT.tif'
-    # output: data_s2 (512,512,13) , data_label(512, 512, 1) , np.array
-    path_s2 = 'dataset/S2Hand/'
-    path_label = "dataset/LabelHand/"
-    fnamesplit = filename.split('_')
-    s2_imgpath = os.path.join(path_s2, f'{fnamesplit[0]}_{fnamesplit[1]}_S2Hand.tif' )
-    label_imgpath = os.path.join(path_label, f'{fnamesplit[0]}_{fnamesplit[1]}_LabelHand.tif')  
-    with rasterio.open(s2_imgpath) as src:
-        data_s2 = src.read().astype(float).T
-
-    with rasterio.open(label_imgpath) as src:
-        data_label = src.read().astype(float).T
-
-    return data_s2, data_label
-
 def load_s2filelist_df(splits):
-    # load S2 file list into pandas dataframe for desired splits
-    # input: splits (list)
+    """
+    load .tif files list into pandas dataframe for desired splits 
+    listed in the corresponding csv files in: dataset/flood_handlabeled/'
+    input: splits, e.g: ['train','test']
+    output: pandas dataframe with columns 'region','imageId','sampleType', 'split'
+    """
     data_root = 'dataset/flood_handlabeled/'
     df = []
     for split in splits:
@@ -43,7 +30,29 @@ def load_s2filelist_df(splits):
     df = pd.concat(df)
     return df
 
+def get_s2_hand(filename):
+    """ 
+    loads S2 data files- 13 band tif and corresponding labeled mask
+    input: file name 'REGION_IMGID_SPLIT.tif'
+    output: data_s2 (512,512,13) , data_label(512, 512, 1) , np.array
+    """
+    path_s2 = 'dataset/S2Hand/'
+    path_label = "dataset/LabelHand/"
+    fnamesplit = filename.split('_')
+    s2_imgpath = os.path.join(path_s2, f'{fnamesplit[0]}_{fnamesplit[1]}_S2Hand.tif' )
+    label_imgpath = os.path.join(path_label, f'{fnamesplit[0]}_{fnamesplit[1]}_LabelHand.tif' )
+    with rasterio.open(s2_imgpath) as src:
+        data_s2 = src.read().astype(float).T
+
+    with rasterio.open(label_imgpath) as src:
+        data_label = src.read().astype(float).T
+
+    return data_s2, data_label
+
 def step1_number_of_images():
+    """
+    calculate  number of images per split per region
+    """
     # load all S2 datafiles, exclude bolivia
     df_allbol = load_s2filelist_df(splits=['train','valid','test','bolivia'])
     df_all = df_allbol[df_allbol['split'] != "bolivia"]
@@ -63,10 +72,15 @@ def step1_number_of_images():
     fig.savefig(os.path.join(output_path,'step1_images_per_split_and_region.png'), dpi=300)
     plt.show()
 
+    df_stats_order.to_csv(os.path.join(output_path,'step1_df_num_of_images_summary.csv'))
+
     return df_stats_order, fig
 
-
 def stats_per_channel_image(label_path):
+    """
+    input: filename of LabelHand
+    output: sum and sum of squeares per band over all valid pixels
+    """
     data_s2, data_label = get_s2_hand(label_path)
     data_label_broad = data_label * np.ones([512, 512, 13])
     data_s2_masked = np.where(data_label_broad > -1, data_s2, np.nan)
@@ -77,7 +91,11 @@ def stats_per_channel_image(label_path):
     return band_sums, band_sumsquare, pixel_count
     
 def step1_mean_stdv_bands_fromdf(df):
-    # Calculate Per-channel mean and standard deviation for the entire dataset
+    """
+    Calculate Per-channel mean and standard deviation per band for the entire dataset
+    input: pandas dataframe containing all the filenames df['LabelHand']
+    output: pandas dataframe with mean and standard deviation per band
+    """
     nbands = 13
     pixel_count = 0
     sums = np.zeros([nbands])
@@ -99,15 +117,29 @@ def step1_mean_stdv_bands_fromdf(df):
     return df_band_stats
 
 def step1_mean_stdv_bands_allsplits():
-    # load all S2 datafiles
+    """
+    Load all files from all splits and 
+    Calculate Per-channel mean and standard deviation per band for the entire dataset
+    input: pandas dataframe containing all the filenames df['LabelHand']
+    output: pandas dataframe with mean and standard deviation per band
+            the dataframe is saved to a .csv
+    """
+    
     df_allbol = load_s2filelist_df(splits=['train','valid','test','bolivia'])
-    # df_all = df_allbol[df_allbol['split'] != "bolivia"]
     df_band_stats = step1_mean_stdv_bands_fromdf(df_allbol)
+    df_band_stats.to_csv(os.path.join(output_path,'step1_df_band_stats_sum_all.csv'))
+
     print(df_band_stats)
+
     return
 
 def step1_mean_stdv_bands_allsplits_v2():
-    # load all S2 datafiles
+    """
+    Calculate Per Image Per-channel mean and standard deviation per band for the entire dataset
+    input: none
+    output: pandas dataframe with sum and square sum per band per image
+            the dataframe is saved to a .csv
+    """
     df_allbol = load_s2filelist_df(splits=['train','valid','test','bolivia'])
     stats_v2 = df_allbol['LabelHand'].apply(lambda x: stats_per_channel_image(x))
     df_band_stats = df_allbol.copy()
@@ -117,12 +149,17 @@ def step1_mean_stdv_bands_allsplits_v2():
     df_band_stats[sumsquare_columns] = pd.DataFrame(stats_v2.apply(lambda x: x[1]).tolist(), index=df_band_stats.index)
     df_band_stats['pixel_count'] = pd.DataFrame(stats_v2.apply(lambda x: x[2]).tolist(), index=df_band_stats.index)
     print(df_band_stats)
+    df_band_stats.to_csv(os.path.join(output_path,'step1_df_band_stats_all_frames.csv'))
 
     return df_band_stats
 
-
 def step1_mean_stdv_bands_allsplits_persplit():
-
+    """
+    Calculate Per Image Per-channel mean and standard deviation per band for the entire dataset
+    input: none
+    output: pandas dataframe with mean and std per band per split
+            the dataframe for mean and std saved to a .csv
+    """
     df_band_stats = step1_mean_stdv_bands_allsplits_v2()
     df_band_std_splits = []
     df_band_means_splits = []
@@ -137,6 +174,9 @@ def step1_mean_stdv_bands_allsplits_persplit():
     df_band_std_splits = pd.concat(df_band_std_splits)
     df_band_means_splits = pd.concat(df_band_means_splits)
 
+    df_band_means_splits.to_csv(os.path.join(output_path,'step1_df_band_means_splits.csv'))
+    df_band_std_splits.to_csv(os.path.join(output_path,'step1_df_band_std_splits.csv'))
+
     print('Per channel mean per split:')
     print(df_band_means_splits)
     print('===========')
@@ -149,7 +189,8 @@ def step1_mean_stdv_bands_allsplits_persplit():
 
 def water_probability_image(label_path):
     """ 
-    load S2 data (13 bands and labels) and calculate the number of water pixels based on labels
+    load Sentinel-2 data (13 bands and labels) 
+    calculate the number of water pixels based on handlabels
     """
     _ , data_label = get_s2_hand(label_path)
     pixels_water = np.sum(np.where(data_label == 1, 1, 0))
@@ -158,8 +199,11 @@ def water_probability_image(label_path):
 
     return pixels_water, pixels_dry, pixels_nan
 
-
 def step1_water_probability_per_image_persplit():
+    """ 
+    load Sentinel-2 dataset from all splits
+    calculate the number of water pixels based on handlabels
+    """
     df_allbol = load_s2filelist_df(splits=['train','valid','test','bolivia'])
     df_waterprob = df_allbol.copy()
     df_waterprob[['pixels_water', 'pixels_dry', 'pixels_nan']] = df_waterprob['LabelHand'].apply(lambda x: pd.Series(water_probability_image(x)))
@@ -169,8 +213,8 @@ def step1_water_probability_per_image_persplit():
     # plot hist of water probability in each frame
     fig = plt.figure(figsize=(10, 6))
     plt.hist(df_waterprob['prob_water'].dropna(), bins=50, color='blue', alpha=0.7)
-    plt.title('water probability per image')
-    plt.xlabel('water probability (fraction of water pixels)')
+    plt.title('Water probability per image')
+    plt.xlabel('Water probability (fraction of water pixels)')
     plt.ylabel('# of images')
     plt.grid(True)
     fig.savefig(os.path.join(output_path,'step1_water_probability_per_image.png'), dpi=300)
@@ -184,7 +228,7 @@ def step1_water_probability_per_image_persplit():
     print('Probability of water per split:')
     print(df_waterprob_split)
     df_waterprob_split.to_csv(os.path.join(output_path,'df_waterprob_split.csv'))
-    df_waterprob.to_csv('df_waterprob.csv')
+    df_waterprob.to_csv(os.path.join(output_path,'df_waterprob.csv'))
 
     return df_waterprob, df_waterprob_split
 

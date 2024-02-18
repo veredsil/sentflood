@@ -1,17 +1,19 @@
 import tensorflow as tf
 import os
-from PIL import Image
 import rasterio
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 output_path = 'output/step3/'
-# os.path.join(output_path,
 
 def load_s2filelist_df(splits):
-    # load S2 file list into pandas dataframe for desired splits
-    # input: splits (list)
+    """
+    load .tif files list into pandas dataframe for desired splits 
+    listed in the corresponding csv files in: dataset/flood_handlabeled/'
+    input: splits, e.g: ['train','test']
+    output: pandas dataframe with columns 'region','imageId','sampleType', 'split'
+    """
     data_root = 'dataset/flood_handlabeled/'
     df = []
     for split in splits:
