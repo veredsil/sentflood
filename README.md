@@ -44,6 +44,9 @@ the final file structure should be:
 3. Probability of water (based on labels)
 
     a. Per image
+
+    saved to: df_waterprob.csv
+
     <div>
     <img src="sentfloods/output/step1_water_probability_per_image.png" height="256" hspace=3 >
     </div>
@@ -58,6 +61,8 @@ the final file structure should be:
         test       0.125841
         train      0.095461
         valid      0.110255
+
+        saved to: df_waterprob_split.csv
 
 
     generated calling step1_water_probability_per_image_persplit() in step1_stats.py
@@ -96,6 +101,12 @@ Sample labels using the optimal NDWI threshold compared to the provided labels:
 <div>
   <img src="sentfloods/output/step2_ndwi_threshold_vis_Bolivia_129334_Lab.png" height="276" hspace=3 >
 </div>
+
+metrics VS thresholds:
+<div>
+  <img src="sentfloods/output/step2_ndwi_f1_vs_th_train.png" height="276" hspace=3 >
+</div>
+
 
 step2_calc_metrics_perframe() : inspects low scoring frames with respect the optimized threshold. 
 
