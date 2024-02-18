@@ -93,13 +93,10 @@ Testand Bolivia F1 Score: 0.831
 Sample labels using the optimal NDWI threshold compared to the provided labels: 
 
 <div>
-  <img src="sentfloods/output/step2_ndwi_threshold_vis_Paraguay_280900_Lab.png" height="256" hspace=3 >
+  <img src="sentfloods/output/step2_ndwi_threshold_vis_Paraguay_280900_Lab.png" height="276" hspace=3 >
 </div>
 <div>
-  <img src="sentfloods/output/step2_ndwi_threshold_vis_Bolivia_129334_Lab.png" height="256" hspace=3 >
-</div>
-<div>
-  <img src="sentfloods/output/step2_ndwi_threshold_vis_step2_ndwi_threshold_vis_USA_504150_.png" height="256" hspace=3 >
+  <img src="sentfloods/output/step2_ndwi_threshold_vis_Bolivia_129334_Lab.png" height="276" hspace=3 >
 </div>
 
 
