@@ -80,8 +80,14 @@ The per-pixel probability of water is computed using the NDWI index (specificall
     batch_visualize_ndwith_eval_withrgb() - visualizing random frames from the training set using the optimal threshold
     blue - water, grey - dry, black - bad pixels
 
+Optimal NDWI Threshold: -0.0842:
+    MCC: 0.7632510372467107
+    F1: 0.7750437329392509
 
-Optimal NDWI Threshold: -0.0428 with MCC: 0.755
+Test F1 Score: 0.831
+Test MCC Score: 0.812
+
+
 Examples: 
 
 <div>

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_recall_fscore_support
-from sklearn.metrics import f1_score, matthews_corrcoef
+from sklearn.metrics import f1_score, matthews_corrcoef, jaccard_score
 
 output_path = 'output/'
 
@@ -110,38 +110,6 @@ def hist_ndwi_water_dry(ndwi_arr, label_arr):
 
     return fig
 
-def optimal_ndwi_th_mcc(label_all, ndwi_all):
-    """
-    Find optimal NDWI threshold my maximazing MCC score on the training set
-    """
-    ndwi_filt = ndwi_all.flatten()
-    label_filt = label_all.flatten()
-    ndwi_filt = ndwi_filt[label_filt>-1]
-    label_filt = label_filt[label_filt>-1]
-
-    mcc_scores = []
-    f1_scores = []
-    precisions = []
-    recalls = []
-    thresholds = np.linspace(-.25, .1, 20) # range was chosen according to the labeled distributions
-
-    # Calculate MCC for each threshold
-    for threshold in thresholds:
-        predictions = ndwi_filt > threshold
-        mcc = matthews_corrcoef(label_filt, predictions)
-        mcc_scores.append(mcc)
-        precision, recall, f1, _ = precision_recall_fscore_support(label_filt, predictions, average='binary')
-        precisions.append(precision)
-        recalls.append(recall)
-        f1_scores.append(f1)
-
-    # Find the threshold with the highest MCC
-    max_mcc_index = np.argmax(mcc_scores)
-    optimal_threshold = thresholds[max_mcc_index]
-    print(f"Optimal NDWI Threshold: {optimal_threshold} with MCC: {mcc_scores[max_mcc_index]}")
-
-    return mcc_scores, thresholds, optimal_threshold, f1_scores, precisions, recalls
-
 def mask_to_rgb(mask_bin):
     
     mask_rgb = np.zeros((*mask_bin.shape, 3), dtype=np.uint8)
@@ -198,31 +166,73 @@ def batch_visualize_ndwith_eval_withrgb(df, ndwi_th):
 
     return fig
 
+def optimal_ndwi_th_mcc(label_all, ndwi_all):
+    """
+    Find optimal NDWI threshold my maximazing MCC score on the training set
+    """
+
+    # Remove pixels with label = -1
+    ndwi_filt = ndwi_all.flatten()
+    label_filt = label_all.flatten()
+    ndwi_filt = ndwi_filt[label_filt>-1]
+    label_filt = label_filt[label_filt>-1]
+
+    mcc_scores = []
+    f1_scores = []
+    precisions = []
+    recalls = []
+    ious = []
+    thresholds = np.linspace(-.25, .1, 20) # range was chosen according to the labeled distributions
+
+    # Calculate MCC for each threshold
+    for threshold in thresholds:
+        predictions = ndwi_filt > threshold
+        mcc = matthews_corrcoef(label_filt, predictions)
+        mcc_scores.append(mcc)
+        iou_score = jaccard_score(label_filt, predictions, average='binary')
+        ious.append(iou_score)
+        precision, recall, f1, _ = precision_recall_fscore_support(label_filt, predictions, average='binary')
+        precisions.append(precision)
+        recalls.append(recall)
+        f1_scores.append(f1)
+
+    # Find the threshold with the highest MCC
+    max_mcc_index = np.argmax(mcc_scores)
+    optimal_threshold = thresholds[max_mcc_index]
+    print(f"Optimal NDWI Threshold: {optimal_threshold} with MCC: {mcc_scores[max_mcc_index]}")
+
+    return thresholds, optimal_threshold, mcc_scores, f1_scores, precisions, recalls, ious
+
 
 def evaluate_optimal_th_on_test(optimal_th, splits=['test','bolivia']):
 
     df_testbol = load_s2filelist_df(splits)
     ndwi_test, label_test, _, _ = calc_mndwi_from_df(df_testbol)
+    label_test_filt = label_test[:,:,0]
     predictions_test = (ndwi_test > optimal_th)
-    predictions_test = predictions_test[label_test>-1]
-    label_test_filt = label_test[label_test>-1]
+    predictions_test = predictions_test[label_test_filt>-1]
+    label_test_filt = label_test_filt[label_test_filt>-1]
     conf_matrix_test = confusion_matrix(label_test_filt, predictions_test)
     print("Test Confusion Matrix:\n", conf_matrix_test)
 
-    mcc = matthews_corrcoef(label_test_filt, predictions_test)
-    precision, recall, f1, _ = precision_recall_fscore_support(label_test_filt, predictions_test, average='binary')
-    print(f"Test F1 Score: {f1}")
-    print(f"Test MCC Score: {mcc}")
-    # print(f"Train F1 Score: {f1_train}")
-    # print("Train Confusion Matrix:\n", conf_matrix_train)
-    # mcc_scores, thresholds, _ = optimal_ndwi_th_mcc(label_test, ndwi_test)
-    # max_mcc_index = np.argmax(mcc_scores)
-    # optimal_threshold = thresholds[max_mcc_index]
-
+    mcc_test = matthews_corrcoef(label_test_filt, predictions_test)
+    precision_test, recall_test, f1_test, _ = precision_recall_fscore_support(label_test_filt, predictions_test, average='binary')
+    print(f"Test F1 Score: {f1_test}")
+    print(f"Test MCC Score: {mcc_test}")
+    
     return
 
 def step2_calc_ndwi():
+    """
+    main function of step 2, calculates:
+    1. NDWI for train/valid and test/bolivia splits
+    2. Inspect distribution of NDWI values for water/dry pixels
+    3. Find optimal threshold by maximizing performance metrics 
+        over a relevant range of threshold values.
+    4. Visualize the mask calculated from NDWI to the ground truth
+    5. Evaluate the performance of the threshold on the testing splits
 
+    """
     df_trainvalid = load_s2filelist_df(['train','valid'])
     df_testbol = load_s2filelist_df(['test','bolivia'])
 
@@ -237,14 +247,15 @@ def step2_calc_ndwi():
     fig.savefig(os.path.join(output_path,'step2_ndwi_hist_water_dry_testbol.png'), dpi=300)
     print('Distribution of NDWI for water and dry pixels for test/valboliviaid splits saved to: step2_ndwi_hist_water_dry_testbol.png')
  
-    mcc_scores, thresholds, optimal_threshold, f1_scores, precisions, recalls = optimal_ndwi_th_mcc(label_train, ndwi_train)
+    thresholds, optimal_threshold, mcc_scores, f1_scores, precisions, recalls, ious = optimal_ndwi_th_mcc(label_train, ndwi_train)
 
     df_metrics = pd.DataFrame({
         'Threshold': thresholds,
         'MCC Score': mcc_scores,
         'F1 Score': f1_scores,
         'Precision': precisions,
-        'Recall': recalls
+        'Recall': recalls, 
+        'IoU': ious
     })
 
     # Display the DataFrame to ensure it looks correct
