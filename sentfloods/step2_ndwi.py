@@ -203,6 +203,28 @@ def optimal_ndwi_th_mcc(label_all, ndwi_all):
 
     return thresholds, optimal_threshold, mcc_scores, f1_scores, precisions, recalls, ious
 
+def visualize_metrics(thresholds, optimal_threshold, mcc_scores, f1_scores, precisions, recalls, ious):
+    
+    # plot F1 vs th
+    fig = plt.figure(figsize=(10, 6))
+    plt.plot(thresholds, precisions, label='Precision', marker='o')
+    plt.plot(thresholds, recalls, label='Recall', marker='s')
+    plt.plot(thresholds, f1_scores, label='F1 Score', marker='^')
+    plt.plot(thresholds, mcc_scores, label='MCC Score', marker='D')
+    plt.plot(thresholds, ious, label='IoU Score', marker='s')
+    plt.legend()
+    plt.plot(optimal_threshold, mcc_scores[max_mcc_index], 'ko')
+    plt.plot(thresholds[np.argmax(f1_scores)], f1_scores[np.argmax(f1_scores)], 'ko')
+    plt.plot(thresholds[np.argmax(ious)], ious[np.argmax(ious)], 'ko')
+
+    plt.xlabel('NDWI Threshold')
+    plt.ylabel('Score')
+    plt.title('Validation Metrics vs. NDWI Threshold')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+    
+    return fig
 
 def evaluate_optimal_th_on_test(optimal_th, splits=['test','bolivia']):
 
@@ -217,8 +239,8 @@ def evaluate_optimal_th_on_test(optimal_th, splits=['test','bolivia']):
 
     mcc_test = matthews_corrcoef(label_test_filt, predictions_test)
     precision_test, recall_test, f1_test, _ = precision_recall_fscore_support(label_test_filt, predictions_test, average='binary')
-    print(f"Test F1 Score: {f1_test}")
-    print(f"Test MCC Score: {mcc_test}")
+    print(f"Test F1 Score: {f1_test:.3f}")
+    print(f"Test MCC Score: {mcc_test:.3f}")
     
     return
 
@@ -264,39 +286,13 @@ def step2_calc_ndwi():
     df_metrics.to_csv(os.path.join(output_path,'optimal_ndwi_thresholds_trainvalid.csv'), index=False)
     max_mcc_index = np.argmax(mcc_scores)
     optimal_threshold = thresholds[max_mcc_index]
-    print(f"Optimal NDWI Threshold: {optimal_threshold} with MCC: {mcc_scores[max_mcc_index]}")
-    print(f"Optimal NDWI Threshold: {thresholds[f1_scores==np.max(f1_scores)]} with F1: {np.max(f1_scores)}")
+    print(f"Optimal NDWI Threshold: {optimal_threshold:0.3f} with MCC: {mcc_scores[max_mcc_index]:0.3f}")
+    print(f"Optimal NDWI Threshold: {thresholds[f1_scores==np.max(f1_scores)][0]:.3f} with F1: {np.max(f1_scores):0.3f}")
 
-    fig = plt.figure(figsize=(10, 6))
-    plt.plot(thresholds, mcc_scores, label='MCC Score')
-    plt.plot(optimal_threshold, mcc_scores[max_mcc_index], 'ro')  # Mark the optimal threshold
-    plt.title('MCC vs. NDWI Threshold')
-    plt.xlabel('NDWI Threshold')
-    plt.ylabel('MCC Score')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+    fig = visualize_metrics(thresholds, optimal_threshold, mcc_scores, f1_scores, precisions, recalls, ious)
     fig.savefig(os.path.join(output_path,'step2_ndwi_mcc_vs_th_train.png'), dpi=300)
 
-    # plot F1 vs th
-    fig = plt.figure(figsize=(10, 6))
-    plt.plot(thresholds, precisions, label='Precision', marker='o')
-    plt.plot(thresholds, recalls, label='Recall', marker='s')
-    plt.plot(thresholds, f1_scores, label='F1 Score', marker='^')
-    plt.plot(thresholds, mcc_scores, label='MCC Score', marker='D')
-    plt.xlabel('NDWI Threshold')
-    plt.ylabel('Score')
-    plt.title('Validation Metrics vs. NDWI Threshold')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-    fig.savefig(os.path.join(output_path,'step2_ndwi_f1_vs_th_train.png'), dpi=300)
-
     batch_visualize_ndwith_eval_withrgb(df_testbol, optimal_threshold)
-    
-    # eval on test and bolibia sets
     evaluate_optimal_th_on_test(optimal_threshold, splits=['test','bolivia'])
 
     return
