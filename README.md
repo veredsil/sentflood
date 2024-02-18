@@ -33,10 +33,8 @@ the final file structure should be:
 1. Number of images in each split and each region.
     step1_stats.py: step1_number_of_images()
 
-![][https://github.com/veredsil/sentflood/blob/fae05c6cd5533795ea801d5c53d016d32b8ce59e/sentfloods/output/step1_water_probability_per_image.png]
-
 <div>
-  <img src="sentfloods/output/step1_water_probability_per_image.png" height="256" hspace=3 >
+  <img src="sentfloods/output/step1_images_per_split_and_region.png" height="256" hspace=3 >
 </div>
 
 2. Per-channel mean and standard deviation:
@@ -46,8 +44,17 @@ the final file structure should be:
     
 3. Probability of water (based on labels)
     a. Per image
+
+    <div>
+    <img src="sentfloods/output/step1_water_probability_per_image.png" height="256" hspace=3 >
+    </div>
+
     b. Per train/dev/test sets and for the held-out region (Bolivia)
-    
+    split,0
+bolivia,0.15091422285121836
+test,0.12584127690050112
+train,0.09546076408412027
+valid,0.1102554974260553
     step1_stats.py: step1_water_probability_per_image_persplit()
 
 ###  Step 2 - Using NDWI to predict water
