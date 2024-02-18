@@ -24,8 +24,7 @@ the final file structure should be:
     dataset/LabelHand
 
 2. cd sentfloods
-3. create venv: python -m venv venv
-4. pip install -r ./requirements.txt
+3. install packages in requirements.txt (conda or pip)
 
 ## Features
 
@@ -64,7 +63,11 @@ the final file structure should be:
     generated calling step1_water_probability_per_image_persplit() in step1_stats.py
 
 ###  Step 2 - Using NDWI to predict water
-The per-pixel probability of water is computed using the NDWI index (specifically using B03 and B08 bands). The optimal NDWI index threshold is found using MCC on the training set. Results are evaluated on the test and Bolivia splits.
+The probability of water per-pixel is computed using the NDWI index (specifically using B03 and B08 bands):
+
+NDWI = (B03 - B08) / (B03 + B08)
+
+The optimal NDWI index threshold is found using MCC on the training set. Results are evaluated on the test and Bolivia splits.
 
 <div>
   <img src="sentfloods/output/step2_ndwi_hist_water_dry_trainvalid.png" height="256" hspace=3 >
@@ -80,21 +83,23 @@ The per-pixel probability of water is computed using the NDWI index (specificall
     batch_visualize_ndwith_eval_withrgb() - visualizing random frames from the training set using the optimal threshold
     blue - water, grey - dry, black - bad pixels
 
-Optimal NDWI Threshold: -0.0842:
-    MCC: 0.7632510372467107
-    F1: 0.7750437329392509
+Based on train/valid splits, the optimal NDWI threshold: -0.084 with MCC: 0.763, F1: 0.775
 
-Test F1 Score: 0.831
-Test MCC Score: 0.812
+Test and Bolivia MCC Score: 0.812
+Testand Bolivia F1 Score: 0.831
 
 
-Examples: 
+
+Sample labels using the optimal NDWI threshold compared to the provided labels: 
 
 <div>
   <img src="sentfloods/output/step2_ndwi_threshold_vis_Paraguay_280900_Lab.png" height="256" hspace=3 >
 </div>
 <div>
   <img src="sentfloods/output/step2_ndwi_threshold_vis_Bolivia_129334_Lab.png" height="256" hspace=3 >
+</div>
+<div>
+  <img src="sentfloods/output/step2_ndwi_threshold_vis_step2_ndwi_threshold_vis_USA_504150_.png" height="256" hspace=3 >
 </div>
 
 
@@ -106,11 +111,21 @@ https://www.tensorflow.org/tutorials/load_data/tfrecord).
 The image bytes are be stored as a tf.train.BytesList feature, when the contents is an array of [H, W, C=13] uint16 bytes. The labels are stored in a format similar to the image, as an array of [H,W,C=1]
 
 <div>
-  <img src="sentfloods/output/step3/step3_tfrec_vis.png" height="256" hspace=3 >
+  <img src="sentfloods/output/step3/step3_tfrec_vis_train_02.png" height="256" hspace=3 >
 </div>
 
-step3_tfrec.py: step3_tfrecoeds_for_dataset() - creates a tfrecoeds for train, valid, test, and bolivia splits
-                step3_tfrecoeds_visual() - visualize the records
+<div>
+  <img src="sentfloods/output/step3/step3_tfrec_vis_valid_01.png" height="256" hspace=3 >
+</div>
+
+<div>
+  <img src="sentfloods/output/step3/step3_tfrec_vis_bolivia_01.png" height="256" hspace=3 >
+</div>
+
+usage:
+step3_tfrec.py: 
+step3_tfrecoeds_for_dataset() - creates a tfrecords for train, valid, test, and bolivia splits
+step3_tfrecoeds_visual() - visualize the records
 
 
 
