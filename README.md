@@ -42,13 +42,17 @@ the final file structure should be:
         entire dataset: step1_stats.py: step1_mean_stdv_bands_allsplits()
         per split: step1_stats.py: step1_mean_stdv_bands_allsplits_persplit()
     
-3. Probability of water (based on labels) \\
+3. Probability of water (based on labels)
+
     a. Per image
     <div>
     <img src="sentfloods/output/step1_water_probability_per_image.png" height="256" hspace=3 >
     </div>
 
-    b. Per train/dev/test sets and for the held-out region (Bolivia) \\
+
+    b. Per train/dev/test sets and for the held-out region (Bolivia)
+
+
         Probability of water per split:
 
         bolivia    0.150914
@@ -56,6 +60,7 @@ the final file structure should be:
         train      0.095461
         valid      0.110255
 
+        
     generated calling step1_water_probability_per_image_persplit() in step1_stats.py
 
 ###  Step 2 - Using NDWI to predict water
