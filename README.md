@@ -62,7 +62,7 @@ the final file structure should be:
 The per-pixel probability of water is computed using the NDWI index (specifically using B03 and B08 bands). The optimal NDWI index threshold is found using MCC on the training set. Results are evaluated on the test and Bolivia splits.
 
 <div>
-  <img src="sentfloods/output/step1_images_per_split_and_region.png" height="256" hspace=3 >
+  <img src="sentfloods/output/step2_ndwi_hist_water_dry_trainvalid.png" height="256" hspace=3 >
 </div>
 
     step2_calc_ndwi(): calculates ndwi for the train/valid and test/bolivia datasets
@@ -83,6 +83,10 @@ The per-pixel probability of water is computed using the NDWI index (specificall
 Saving the original dataset (with the splits) into a TFRecord format, which is documented here:
 https://www.tensorflow.org/tutorials/load_data/tfrecord 
 The image bytes are be stored as a tf.train.BytesList feature, when the contents is an array of [H, W, C=13] uint16 bytes. The labels are stored in a format similar to the image, as an array of [H,W,C=1]
+
+<div>
+  <img src="sentfloods/output/step3/step3_tfrec_vis.png" height="256" hspace=3 >
+</div>
 
 step3_tfrec.py: step3_tfrecoeds_for_dataset() - creates a tfrecoeds for train, valid, test, and bolivia splits
                 step3_tfrecoeds_visual() - visualize the records
