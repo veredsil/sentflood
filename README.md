@@ -42,24 +42,28 @@ the final file structure should be:
         entire dataset: step1_stats.py: step1_mean_stdv_bands_allsplits()
         per split: step1_stats.py: step1_mean_stdv_bands_allsplits_persplit()
     
-3. Probability of water (based on labels)
+3. Probability of water (based on labels) \\
     a. Per image
-
     <div>
     <img src="sentfloods/output/step1_water_probability_per_image.png" height="256" hspace=3 >
     </div>
 
-    b. Per train/dev/test sets and for the held-out region (Bolivia)
-    split,0
-bolivia,0.15091422285121836
-test,0.12584127690050112
-train,0.09546076408412027
-valid,0.1102554974260553
-    step1_stats.py: step1_water_probability_per_image_persplit()
+    b. Per train/dev/test sets and for the held-out region (Bolivia) \\
+        Probability of water per split:
+
+        bolivia    0.150914
+        test       0.125841
+        train      0.095461
+        valid      0.110255
+
+    generated calling step1_water_probability_per_image_persplit() in step1_stats.py
 
 ###  Step 2 - Using NDWI to predict water
-Computes the per-pixel probability of water using the NDWI index (specifically using B03 and B08 bands).
-and finds the optimal NDWI index threshold using MCC on the training set. Results are evaluated on the test and Bolivia splits.
+The per-pixel probability of water is computed using the NDWI index (specifically using B03 and B08 bands). The optimal NDWI index threshold is found using MCC on the training set. Results are evaluated on the test and Bolivia splits.
+
+<div>
+  <img src="sentfloods/output/step1_images_per_split_and_region.png" height="256" hspace=3 >
+</div>
 
     step2_calc_ndwi(): calculates ndwi for the train/valid and test/bolivia datasets
                         finds the optimal threshold using: optimal_ndwi_th_mcc()
