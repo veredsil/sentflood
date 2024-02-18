@@ -24,7 +24,7 @@ the final file structure should be:
     dataset/LabelHand
 
 2. cd sentfloods
-3. Create venv: python -m venv venv
+3. create venv: python -m venv venv
 4. pip install -r ./requirements.txt
 
 ## Features
