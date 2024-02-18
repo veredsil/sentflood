@@ -75,13 +75,25 @@ The per-pixel probability of water is computed using the NDWI index (specificall
     batch_visualize_ndwith_eval_withrgb() - visualizing random frames from the training set using the optimal threshold
     blue - water, grey - dry, black - bad pixels
 
-    Optimal NDWI Threshold: -0.0428 with MCC: 0.755
+
+Optimal NDWI Threshold: -0.0428 with MCC: 0.755
+Examples: 
+
+<div>
+  <img src="sentfloods/output/step2_ndwi_threshold_vis_Paraguay_280900_Lab.png" height="256" hspace=3 >
+</div>
+<div>
+  <img src="sentfloods/output/step2_ndwi_threshold_vis_Bolivia_129334_Lab.png" height="256" hspace=3 >
+</div>
+
+
+    
 
 
 ###  Step 3 - Create a TFRecord file
 
-Saving the original dataset (with the splits) into a TFRecord format, which is documented here:
-https://www.tensorflow.org/tutorials/load_data/tfrecord 
+Save the original dataset (with the splits) into a TFRecord format (documented here:
+https://www.tensorflow.org/tutorials/load_data/tfrecord).
 The image bytes are be stored as a tf.train.BytesList feature, when the contents is an array of [H, W, C=13] uint16 bytes. The labels are stored in a format similar to the image, as an array of [H,W,C=1]
 
 <div>

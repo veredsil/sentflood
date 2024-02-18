@@ -143,7 +143,6 @@ def visualize_dataset(dataset, num_images=1):
         axs[1].set_title('Ground Truth')
         axs[1].axis('off')
 
-        plt.tight_layout()
         plt.show()
 
     return fig
