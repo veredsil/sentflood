@@ -81,7 +81,7 @@ def normalize_band(band):
     return (band - band.min()) / (band.max() - band.min())
 
 def write_tfrecord(df, tfrecord_file_path):
-    """ write tfrecord for all files in df , save in tfrecord_file_path"""
+    """ write tfrecord for all files in df , save to tfrecord_file_path"""
     with tf.io.TFRecordWriter(tfrecord_file_path) as writer:
         for file_path in df['LabelHand'].values:
             tf_example = serialize_S2img(file_path)
@@ -125,14 +125,13 @@ def visualize_parsed_record(parsed_record):
 
     return fig
 
-
 def step3_tfrecoeds_for_dataset():
     """ save tf.record files for all splits"""
 
     splits = ['train','valid','test','bolivia']
     for split in splits:
         df_split = load_s2filelist_df([split])
-        write_tfrecord(df_split, f'tfrecords.{split}')
+        write_tfrecord(df_split, os.path.join(output_path, 'tfrecords', f'tfrecords.{split}'))
         print(f'tfrecords.{split} saved')
 
     return
@@ -148,7 +147,7 @@ def step3_tfrecoeds_visual():
         for ii in range(num_images):
             for parsed_record in parsed_dataset.take(ii):
                 fig = visualize_parsed_record(parsed_record)
-                fig.savefig(os.path.join(output_path,f'step3_tfrec_vis_{split}_{ii:02d}.png'), dpi=300)
+                fig.savefig(os.path.join(output_path, f'step3_tfrec_vis_{split}_{ii:02d}.png'), dpi=300)
     return
 
 step3_tfrecoeds_for_dataset()

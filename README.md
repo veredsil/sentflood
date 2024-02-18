@@ -88,8 +88,6 @@ Based on train/valid splits, the optimal NDWI threshold: -0.084 with MCC: 0.763,
 Test and Bolivia MCC Score: 0.812
 Testand Bolivia F1 Score: 0.831
 
-
-
 Sample labels using the optimal NDWI threshold compared to the provided labels: 
 
 <div>
@@ -99,6 +97,7 @@ Sample labels using the optimal NDWI threshold compared to the provided labels:
   <img src="sentfloods/output/step2_ndwi_threshold_vis_Bolivia_129334_Lab.png" height="276" hspace=3 >
 </div>
 
+step2_calc_metrics_perframe() : inspects low scoring frames with respect the optimized threshold. 
 
 
 ###  Step 3 - Create a TFRecord file
