@@ -12,9 +12,11 @@ In order to download the dataset you’ll need to install google cloud command l
 
 1. Retrieve the dataset: 
 
-gsutil -m rsync -r gs://sen1floods11/v1.1/splits/flood_handlabeled/
-gsutil -m rsync -r gs://sen1floods11/v1.1/data/flood_events/HandLabeled/LabelHand
-gsutil -m rsync -r gs://sen1floods11/v1.1/data/flood_events/HandLabeled/S2Hand
+```bash
+$ gsutil -m rsync -r gs://sen1floods11/v1.1/splits/flood_handlabeled/ dataset/flood_handlabeled
+$ gsutil -m rsync -r gs://sen1floods11/v1.1/data/flood_events/HandLabeled/LabelHand dataset/LabelHand
+$ gsutil -m rsync -r gs://sen1floods11/v1.1/data/flood_events/HandLabeled/S2Hand dataset/S2Hand
+```
 
 the final file structure should be:
     dataset/flood_handlabeled
@@ -32,6 +34,10 @@ the final file structure should be:
     step1_stats.py: step1_number_of_images()
 
 ![][https://github.com/veredsil/sentflood/blob/fae05c6cd5533795ea801d5c53d016d32b8ce59e/sentfloods/output/step1_water_probability_per_image.png]
+
+<div>
+  <img src="sentfloods/output/step1_water_probability_per_image.png" height="256" hspace=3 >
+</div>
 
 2. Per-channel mean and standard deviation:
     step1_stats.py: 
