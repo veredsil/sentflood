@@ -228,7 +228,7 @@ def optimal_ndwi_th_mcc(label_all, ndwi_all):
     precisions = []
     recalls = []
     ious = []
-    thresholds = np.linspace(-.25, .05, 5) # range was chosen according to the labeled distributions
+    thresholds = np.linspace(-.25, .05, 6) # range was chosen according to the labeled distributions
 
     for threshold in thresholds:
         predictions = ndwi_filt > threshold

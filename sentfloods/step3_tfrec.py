@@ -6,6 +6,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 output_path = 'output/step3/'
+if not os.path.exists(poutput_path):
+    os.makedirs(output_path)
+if not os.path.exists(os.path.join(output_path, 'tfrecords')):
+    os.makedirs(os.path.join(output_path, 'tfrecords'))
 
 def load_s2filelist_df(splits):
     """
