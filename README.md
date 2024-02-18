@@ -1,4 +1,4 @@
-# Flood detection using Sentinel-2 recoreds from the Sen1Floods11 dataset
+# Flood Detection using Sentinel-2 Recoreds from the Sen1Floods11 Dataset
 
 ## Description
 
