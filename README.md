@@ -120,8 +120,11 @@ The image bytes are be stored as a tf.train.BytesList feature, when the contents
 </div>
 
 usage:
+
 step3_tfrec.py: 
+
 step3_tfrecoeds_for_dataset() - creates a tfrecords for train, valid, test, and bolivia splits
+
 step3_tfrecoeds_visual() - visualize the records
 
 
