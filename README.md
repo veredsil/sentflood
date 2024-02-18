@@ -30,6 +30,9 @@ the final file structure should be:
 ### Step 1 - Basic Statistics
 1. Number of images in each split and each region.
     step1_stats.py: step1_number_of_images()
+
+![][https://github.com/veredsil/sentflood/blob/fae05c6cd5533795ea801d5c53d016d32b8ce59e/sentfloods/output/step1_water_probability_per_image.png]
+
 2. Per-channel mean and standard deviation:
     step1_stats.py: 
         entire dataset: step1_stats.py: step1_mean_stdv_bands_allsplits()
