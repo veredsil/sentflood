@@ -123,7 +123,7 @@ def optimal_ndwi_th_mcc(label_all, ndwi_all):
     f1_scores = []
     precisions = []
     recalls = []
-    thresholds = np.linspace(-.3, .1, 10) # range was chosen according to the labeled distributions
+    thresholds = np.linspace(-.25, .1, 20) # range was chosen according to the labeled distributions
 
     # Calculate MCC for each threshold
     for threshold in thresholds:
@@ -194,7 +194,7 @@ def batch_visualize_ndwith_eval_withrgb(df, ndwi_th):
         fig = visualize_ndwi_eval_withrgb(ndwi, \
                                         data_label[:,:,0], ndwi_th, rgb_image)
 
-        fig.savefig(os.path.join(output_path, f'step2_ndwi_threshold_vis_{filename[:-10]}.png'), dpi=300)
+        fig.savefig(os.path.join(output_path, f'step2_ndwi_threshold_vis_{filename[:-13]}.png'), dpi=300)
 
     return fig
 
@@ -203,23 +203,23 @@ def evaluate_optimal_th_on_test(optimal_th, splits=['test','bolivia']):
 
     df_testbol = load_s2filelist_df(splits)
     ndwi_test, label_test, _, _ = calc_mndwi_from_df(df_testbol)
-
     predictions_test = (ndwi_test > optimal_th)
-    conf_matrix_test = confusion_matrix(label_test, predictions_test)
+    predictions_test = predictions_test[label_test>-1]
+    label_test_filt = label_test[label_test>-1]
+    conf_matrix_test = confusion_matrix(label_test_filt, predictions_test)
     print("Test Confusion Matrix:\n", conf_matrix_test)
 
-    f1_test = f1_score(label_test, predictions_test)   
-    print(f"Test F1 Score: {f1_test}")
-
-    print(f"Train F1 Score: {f1_train}")
-    print("Train Confusion Matrix:\n", conf_matrix_train)
-
+    mcc = matthews_corrcoef(label_test_filt, predictions_test)
+    precision, recall, f1, _ = precision_recall_fscore_support(label_test_filt, predictions_test, average='binary')
+    print(f"Test F1 Score: {f1}")
+    print(f"Test MCC Score: {mcc}")
+    # print(f"Train F1 Score: {f1_train}")
+    # print("Train Confusion Matrix:\n", conf_matrix_train)
     # mcc_scores, thresholds, _ = optimal_ndwi_th_mcc(label_test, ndwi_test)
     # max_mcc_index = np.argmax(mcc_scores)
     # optimal_threshold = thresholds[max_mcc_index]
-    print(f"Optimal NDWI Threshold: {optimal_threshold} with MCC: {mcc_scores[max_mcc_index]}")
 
-    return 
+    return
 
 def step2_calc_ndwi():
 
@@ -237,7 +237,6 @@ def step2_calc_ndwi():
     fig.savefig(os.path.join(output_path,'step2_ndwi_hist_water_dry_testbol.png'), dpi=300)
     print('Distribution of NDWI for water and dry pixels for test/valboliviaid splits saved to: step2_ndwi_hist_water_dry_testbol.png')
  
-    # mcc_scores, thresholds, optimal_threshold = optimal_ndwi_th_mcc(label_train, ndwi_train)
     mcc_scores, thresholds, optimal_threshold, f1_scores, precisions, recalls = optimal_ndwi_th_mcc(label_train, ndwi_train)
 
     df_metrics = pd.DataFrame({
@@ -252,7 +251,6 @@ def step2_calc_ndwi():
     print(df_metrics)
 
     df_metrics.to_csv(os.path.join(output_path,'optimal_ndwi_thresholds_trainvalid.csv'), index=False)
-    
     max_mcc_index = np.argmax(mcc_scores)
     optimal_threshold = thresholds[max_mcc_index]
     print(f"Optimal NDWI Threshold: {optimal_threshold} with MCC: {mcc_scores[max_mcc_index]}")
@@ -271,7 +269,7 @@ def step2_calc_ndwi():
     fig.savefig(os.path.join(output_path,'step2_ndwi_mcc_vs_th_train.png'), dpi=300)
 
     # plot F1 vs th
-    plt.figure(figsize=(10, 6))
+    fig = plt.figure(figsize=(10, 6))
     plt.plot(thresholds, precisions, label='Precision', marker='o')
     plt.plot(thresholds, recalls, label='Recall', marker='s')
     plt.plot(thresholds, f1_scores, label='F1 Score', marker='^')
@@ -286,6 +284,9 @@ def step2_calc_ndwi():
     fig.savefig(os.path.join(output_path,'step2_ndwi_f1_vs_th_train.png'), dpi=300)
 
     batch_visualize_ndwith_eval_withrgb(df_testbol, optimal_threshold)
+    
+    # eval on test and bolibia sets
+    evaluate_optimal_th_on_test(optimal_threshold, splits=['test','bolivia'])
 
     return
 

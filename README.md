@@ -60,7 +60,7 @@ the final file structure should be:
         train      0.095461
         valid      0.110255
 
-        
+
     generated calling step1_water_probability_per_image_persplit() in step1_stats.py
 
 ###  Step 2 - Using NDWI to predict water
@@ -91,8 +91,6 @@ Examples:
   <img src="sentfloods/output/step2_ndwi_threshold_vis_Bolivia_129334_Lab.png" height="256" hspace=3 >
 </div>
 
-
-    
 
 
 ###  Step 3 - Create a TFRecord file
