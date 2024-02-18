@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-
-1. Retrieve the dataset: gsutil -m rsync -r gs://sen1floods11
-=======
-# Project Title
-
-Flood detection using Sentinel-2 recoreds from the Sen1Floods11 dataset
+# Flood detection using Sentinel-2 recoreds from the Sen1Floods11 dataset
 
 ## Description
 
@@ -27,18 +21,13 @@ the final file structure should be:
     dataset/S2Hand
     dataset/LabelHand
 
->>>>>>> 888a9a6 (Initial commit)
 2. cd sentfloods
 3. Create venv: python -m venv venv
 4. pip install -r ./requirements.txt
 
-<<<<<<< HEAD
-Step 1 - Basic Statistics
-=======
 ## Features
 
 ### Step 1 - Basic Statistics
->>>>>>> 888a9a6 (Initial commit)
 1. Number of images in each split and each region.
     step1_stats.py: step1_number_of_images()
 2. Per-channel mean and standard deviation:
@@ -64,15 +53,9 @@ and finds the optimal NDWI index threshold using MCC on the training set. Result
     hist_ndwi_water_dry() - shows the distribution of the NDWI values for dry/water pixels. There is a large    overlap, so will use MCC to find the optimal threshold. 
 
     batch_visualize_ndwith_eval_withrgb() - visualizing random frames from the training set using the optimal threshold
-<<<<<<< HEAD
-                            blue - water, grey - dry, black - bad pixels
-    
-    The optimal threshold was found to be: 
-=======
     blue - water, grey - dry, black - bad pixels
 
     Optimal NDWI Threshold: -0.0428 with MCC: 0.755
->>>>>>> 888a9a6 (Initial commit)
 
 
 ###  Step 3 - Create a TFRecord file
@@ -83,9 +66,6 @@ The image bytes are be stored as a tf.train.BytesList feature, when the contents
 
 step3_tfrec.py: step3_tfrecoeds_for_dataset() - creates a tfrecoeds for train, valid, test, and bolivia splits
                 step3_tfrecoeds_visual() - visualize the records
-<<<<<<< HEAD
-=======
 
 
 
->>>>>>> 888a9a6 (Initial commit)
